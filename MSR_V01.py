@@ -1,0 +1,168 @@
+from tkinter import *
+from PIL import Image, ImageTk
+import tkinter as tk
+from tkinter import StringVar
+from tkinter import Scale
+import paho.mqtt.client as mqtt
+import time
+
+topic = "7011886/ls/data"
+# mosquitto_sub -t "7011886/ls/data" -u "fpl" -P "1234567890"
+hostMQTT="192.168.178.59"
+DEBUG = False
+
+
+
+class BkgrFrame(tk.Frame):
+    def __init__(self, parent, file_path, width, height):
+        super(BkgrFrame, self).__init__(parent, borderwidth=0, highlightthickness=0)
+
+        self.canvas = tk.Canvas(self, width=width, height=height)
+        self.canvas.pack()
+
+        pil_img = Image.open(file_path)
+        self.img = ImageTk.PhotoImage(pil_img.resize((width, height), Image.ANTIALIAS))
+        self.bg = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.img)
+
+    def add(self, widget, x, y):
+        canvas_window = self.canvas.create_window(x, y, anchor=tk.NW, window=widget)
+        return widget
+
+
+def end_prog():
+    if (DEBUG): print("End Program")
+    quit()
+
+def on_connect(mqttc, obj, flags, rc):
+	if (rc == 0):
+		if (DEBUG): print("Connect to MQTT broker")
+
+def on_disconnect(mqttc, obj, rc):
+	if (rc == 1):
+		connect_to_MQTT()
+	if (DEBUG): print("rc="+ str(rc))
+
+def on_publish(mqttc, obj, mid):
+    if (DEBUG): print("mid: " + str(mid))
+    pass
+
+def on_subscribe(mqttc, obj, mid, granted_qos):
+    if (DEBUG): print("Subscribed: " + str(mid) + " " + str(granted_qos))
+
+
+def on_log(mqttc, obj, level, string):
+    if (DEBUG): print(string)
+
+def connect_to_MQTT():
+	mqttConnect = 1
+	while mqttConnect > 0:
+		mqttConnect = mqttc.connect(hostMQTT, 1883, 60)
+		if (DEBUG): print("Cannot connect to MQTT broker")
+		time.sleep(5)
+	return mqttConnect
+
+def on_message(mqttc, obj, msg):
+	if (DEBUG): print(str(msg.payload))
+
+
+mqttc = mqtt.Client()
+mqttc.username_pw_set("fpl", password="1234567890")
+mqttc.on_message = on_message
+mqttc.on_connect = on_connect
+mqttc.on_disconnect = on_disconnect
+mqttc.on_publish = on_publish
+mqttc.on_subscribe = on_subscribe
+# Uncomment to enable debug messages
+# mqttc.on_log = on_log
+
+is_mqttConnect = connect_to_MQTT()
+mqttc.loop_start()
+
+
+def send_value():
+    if (DEBUG): print (scale1.get())
+    toBroker =  str(scale1.get()) + ";"  + str(scale2.get()) + ";"  + str(scale3.get()) + ";"  + str(scale4.get()) + ";"  + str(scale5.get()) + ";"  + str(scale6.get())
+
+    if (is_mqttConnect == 0) :
+        (rc, mid) = mqttc.publish(topic, toBroker, qos=2)
+    else :
+        if (DEBUG): print("MQTT error")
+    
+    button2['bg'] = 'lightgrey'
+
+def updateVal(val):
+    var1.set(scale1.get())
+    var2.set(scale2.get())
+    var3.set(scale3.get())
+    var4.set(scale4.get())
+    var5.set(scale5.get())
+    var6.set(scale6.get())
+    button2['bg'] = 'yellow'
+
+    
+
+
+if __name__ == '__main__':
+
+    IMAGE_PATH = 'MSR1.png'
+    WIDTH, HEIGTH = 800,480
+    FULLSCREEN = True
+    
+    root = tk.Tk()
+    root.geometry('{}x{}'.format(WIDTH, HEIGTH))
+    root.title("MSR Emulator")
+    root.attributes('-fullscreen', FULLSCREEN)
+
+    bkrgframe = BkgrFrame(root, IMAGE_PATH, WIDTH, HEIGTH)
+    bkrgframe.pack()
+
+    var1  = StringVar()
+    var2  = StringVar()
+    var3  = StringVar()
+    var4  = StringVar()
+    var5  = StringVar()
+    var6  = StringVar()
+    
+    OFFSET_SLIDER = 550
+
+
+    # Put some tkinter widgets in the BkgrFrame.
+    scale1 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 150)
+    scale2 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 170)
+    scale3 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 190)
+    scale4 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 340)
+    scale5 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 360)
+    scale6 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 380)
+    
+    scale1.set(65)
+    scale2.set(65)
+    scale3.set(65)
+    scale4.set(65)
+    scale5.set(65)
+    scale6.set(65)
+
+    label1  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L1"), OFFSET_SLIDER - 25 , 147)
+    label2  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L2"), OFFSET_SLIDER - 25 , 167)
+    label3  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L3"), OFFSET_SLIDER - 25 , 187)
+    label4  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L1"), OFFSET_SLIDER - 25 , 337)
+    label5  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L2"), OFFSET_SLIDER - 25 , 357)
+    label6  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L3"), OFFSET_SLIDER - 25 , 377)
+    
+    label7  = bkrgframe.add(tk.Label(root, textvariable=var1, fg='white',bg='black', text="65"), OFFSET_SLIDER + 180 , 147)
+    label8  = bkrgframe.add(tk.Label(root, textvariable=var2, fg='white',bg='black', text="65"), OFFSET_SLIDER + 180 , 167)
+    label9  = bkrgframe.add(tk.Label(root, textvariable=var3, fg='white',bg='black', text="65"), OFFSET_SLIDER + 180 , 187)
+    label10 = bkrgframe.add(tk.Label(root, textvariable=var4, fg='white',bg='black', text="65"), OFFSET_SLIDER + 180 , 337)
+    label11 = bkrgframe.add(tk.Label(root, textvariable=var5, fg='white',bg='black', text="65"), OFFSET_SLIDER + 180 , 357)
+    label12 = bkrgframe.add(tk.Label(root, textvariable=var6, fg='white',bg='black', text="65"), OFFSET_SLIDER + 180 , 377)
+
+    label13 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 147)
+    label14 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 167)
+    label15 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 187)
+    label16 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 337)
+    label17 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 357)
+    label18 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 377)
+
+    button1 = bkrgframe.add(tk.Button(root, text="Exit", command=end_prog ), 10, 10)
+    button2 = bkrgframe.add(tk.Button(root, text="Send", command=send_value ),  470, 410)
+
+    root.mainloop()

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MSRSimulator
+Terminal=false
+Type=Application
+Exec=python3 /home/pi/MSRSim/MSR_V01.py
+Icon=/home/pi/MSRSim/MSR_icoon.png
