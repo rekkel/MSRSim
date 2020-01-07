@@ -6,9 +6,9 @@ from tkinter import Scale
 import paho.mqtt.client as mqtt
 import time
 
-topic = "7011886/ls/data"
-# mosquitto_sub -t "7011886/ls/data" -u "fpl" -P "1234567890"
-hostMQTT="192.168.178.59"
+topic = "channels/7011886/data"
+# mosquitto_sub -t "channels/7011886/data" -u "fpl" -P "1234567890"
+hostMQTT="192.168.178.14"
 DEBUG = False
 
 
@@ -81,7 +81,7 @@ mqttc.loop_start()
 
 def send_value():
     if (DEBUG): print (scale1.get())
-    toBroker =  str(scale1.get()) + ";"  + str(scale2.get()) + ";"  + str(scale3.get()) + ";"  + str(scale4.get()) + ";"  + str(scale5.get()) + ";"  + str(scale6.get())
+    toBroker =  "7011886;" +str(scale1.get()) + ";"  + str(scale2.get()) + ";"  + str(scale3.get()) + ";"  + str(scale4.get()) + ";"  + str(scale5.get()) + ";"  + str(scale6.get())
 
     if (is_mqttConnect == 0) :
         (rc, mid) = mqttc.publish(topic, toBroker, qos=2)
