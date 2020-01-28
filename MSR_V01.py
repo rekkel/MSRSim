@@ -6,11 +6,13 @@ from tkinter import Scale
 import paho.mqtt.client as mqtt
 import time
 
-topic = "channels/7011886/data"
-# mosquitto_sub -t "channels/7011886/data" -u "fpl" -P "1234567890"
-hostMQTT="192.168.178.14"
+topic = "7011886/ls/data"
+# mosquitto_sub -t "7011886/ls/data" -u "fpl" -P "1234567890"
+# hostMQTT="192.168.178.59"
+hostMQTT="localhost"
 DEBUG = False
 
+overzetverhouding_trafo = 10000 / 400
 
 
 class BkgrFrame(tk.Frame):
@@ -81,14 +83,26 @@ mqttc.loop_start()
 
 def send_value():
     if (DEBUG): print (scale1.get())
-    toBroker =  "7011886;" +str(scale1.get()) + ";"  + str(scale2.get()) + ";"  + str(scale3.get()) + ";"  + str(scale4.get()) + ";"  + str(scale5.get()) + ";"  + str(scale6.get())
-
+    toBroker =  "7011886;" + str(scale1.get()) + ";"  + str(scale2.get()) + ";"  + str(scale3.get()) + ";"  + str(scale4.get()) + ";"  + str(scale5.get()) + ";"  + str(scale6.get()) + ";" + str(var7.get())
+    print(toBroker)
     if (is_mqttConnect == 0) :
         (rc, mid) = mqttc.publish(topic, toBroker, qos=2)
     else :
         if (DEBUG): print("MQTT error")
     
     button2['bg'] = 'lightgrey'
+
+
+def update_10kV_stroom():
+    var7.set( round(  ( scale1.get() + 
+                        scale4.get() + 
+                        scale2.get() + 
+                        scale5.get() + 
+                        scale3.get() + 
+                        scale6.get() 
+                      ) / 6 / overzetverhouding_trafo ,1 ))
+
+
 
 def updateVal(val):
     var1.set(scale1.get())
@@ -98,7 +112,7 @@ def updateVal(val):
     var5.set(scale5.get())
     var6.set(scale6.get())
     button2['bg'] = 'yellow'
-
+    update_10kV_stroom()
     
 
 
@@ -116,12 +130,16 @@ if __name__ == '__main__':
     bkrgframe = BkgrFrame(root, IMAGE_PATH, WIDTH, HEIGTH)
     bkrgframe.pack()
 
+    
+
     var1  = StringVar()
     var2  = StringVar()
     var3  = StringVar()
     var4  = StringVar()
     var5  = StringVar()
     var6  = StringVar()
+    
+    var7  = StringVar()
     
     OFFSET_SLIDER = 550
 
@@ -141,6 +159,7 @@ if __name__ == '__main__':
     scale5.set(65)
     scale6.set(65)
 
+   
     label1  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L1"), OFFSET_SLIDER - 25 , 147)
     label2  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L2"), OFFSET_SLIDER - 25 , 167)
     label3  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L3"), OFFSET_SLIDER - 25 , 187)
@@ -162,8 +181,12 @@ if __name__ == '__main__':
     label17 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 357)
     label18 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 377)
 
+    label19 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER - 220 , 320)
+    I_10kV  = bkrgframe.add(tk.Label(root, textvariable=var7, fg='white',bg='black', text="0"), OFFSET_SLIDER - 240 , 320)
+ 
     button1 = bkrgframe.add(tk.Button(root, text="Exit", command=end_prog ), 10, 10)
     button2 = bkrgframe.add(tk.Button(root, text="Send", command=send_value ),  470, 410)
 
+    update_10kV_stroom()
+
     root.mainloop()
-	
