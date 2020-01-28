@@ -6,10 +6,10 @@ from tkinter import Scale
 import paho.mqtt.client as mqtt
 import time
 
-topic = "7011886/ls/data"
-# mosquitto_sub -t "7011886/ls/data" -u "fpl" -P "1234567890"
-# hostMQTT="192.168.178.59"
-hostMQTT="localhost"
+topic = "channels/7011886/data"
+#mosquitto_sub -t "channels/7011886/data" -u "fpl" -P "1234567890"
+hostMQTT="192.168.2.15"
+#hostMQTT="localhost"
 DEBUG = False
 
 overzetverhouding_trafo = 10000 / 400
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     
     root = tk.Tk()
     root.geometry('{}x{}'.format(WIDTH, HEIGTH))
-    root.title("MSR Emulator")
+    root.title("MSR Simulator")
     root.attributes('-fullscreen', FULLSCREEN)
 
     bkrgframe = BkgrFrame(root, IMAGE_PATH, WIDTH, HEIGTH)
