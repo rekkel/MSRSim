@@ -8,8 +8,10 @@ import time
 
 topic = "channels/7011886/data"
 #mosquitto_sub -t "channels/7011886/data" -u "fpl" -P "1234567890"
-hostMQTT="192.168.2.15"
-#hostMQTT="localhost"
+
+#hostMQTT="192.168.2.15"
+
+hostMQTT="192.168.1.135"
 DEBUG = False
 
 overzetverhouding_trafo = 10000 / 400
@@ -64,7 +66,27 @@ def connect_to_MQTT():
 	return mqttConnect
 
 def on_message(mqttc, obj, msg):
-	if (DEBUG): print(str(msg.payload))
+    if (DEBUG): print(str(msg.payload))
+    trafo = ""
+    procent = ""
+    values = []
+    payload = ""
+    
+    payload = str(msg.payload)[2:-1]
+    values = payload.split(";")
+    
+    if (DEBUG): print(values)
+    if (DEBUG): print(len(values))
+    
+    if (len(values) == 3):
+        for index, value in enumerate(values):
+            if (DEBUG): print( value )
+            if (index == 1):
+                trafo = value
+            if (index == 2):
+                procent = value
+
+        update_trafo(trafo, procent)
 
 
 mqttc = mqtt.Client()
@@ -75,16 +97,20 @@ mqttc.on_disconnect = on_disconnect
 mqttc.on_publish = on_publish
 mqttc.on_subscribe = on_subscribe
 # Uncomment to enable debug messages
-# mqttc.on_log = on_log
+#mqttc.on_log = on_log
 
 is_mqttConnect = connect_to_MQTT()
+
+mqttc.subscribe("channels/#", 0)
+
 mqttc.loop_start()
+#mqttc.loop_forever()
 
 
 def send_value():
     if (DEBUG): print (scale1.get())
     toBroker =  "7011886;" + str(scale1.get()) + ";"  + str(scale2.get()) + ";"  + str(scale3.get()) + ";"  + str(scale4.get()) + ";"  + str(scale5.get()) + ";"  + str(scale6.get()) + ";" + str(var7.get())
-    print(toBroker)
+    if (DEBUG): print(toBroker)
     if (is_mqttConnect == 0) :
         (rc, mid) = mqttc.publish(topic, toBroker, qos=2)
     else :
@@ -101,6 +127,10 @@ def update_10kV_stroom():
                         scale3.get() + 
                         scale6.get() 
                       ) / 6 / overzetverhouding_trafo ,1 ))
+
+def update_trafo(kva, procent):
+    var8.set( kva)
+    var9.set( procent)
 
 
 
@@ -120,7 +150,7 @@ if __name__ == '__main__':
 
     IMAGE_PATH = 'MSR1.png'
     WIDTH, HEIGTH = 800,480
-    FULLSCREEN = True
+    FULLSCREEN = False
     
     root = tk.Tk()
     root.geometry('{}x{}'.format(WIDTH, HEIGTH))
@@ -140,6 +170,8 @@ if __name__ == '__main__':
     var6  = StringVar()
     
     var7  = StringVar()
+    var8  = StringVar()
+    var9  = StringVar()
     
     OFFSET_SLIDER = 550
 
@@ -184,9 +216,16 @@ if __name__ == '__main__':
     label19 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER - 220 , 320)
     I_10kV  = bkrgframe.add(tk.Label(root, textvariable=var7, fg='white',bg='black', text="0"), OFFSET_SLIDER - 240 , 320)
  
+    label20 = bkrgframe.add(tk.Label(root, textvariable=var8, fg='white',bg='black', text="400", font=("Helvetica", 16)), OFFSET_SLIDER - 240 , 190)
+    label21 = bkrgframe.add(tk.Label(root, textvariable=var9, fg='white',bg='black', text="50", font=("Helvetica", 16)), OFFSET_SLIDER - 240 , 220)
+    label20 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="KVA", font=("Helvetica", 16)), OFFSET_SLIDER - 200 , 190)
+    label21 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="%", font=("Helvetica", 16)), OFFSET_SLIDER - 200 , 220)
+ 
     button1 = bkrgframe.add(tk.Button(root, text="Exit", command=end_prog ), 10, 10)
     button2 = bkrgframe.add(tk.Button(root, text="Send", command=send_value ),  470, 410)
 
     update_10kV_stroom()
+    
+    update_trafo("400","100")
 
     root.mainloop()
