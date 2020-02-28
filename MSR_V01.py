@@ -10,9 +10,11 @@ topic = "channels/7011886/data"
 #mosquitto_sub -t "channels/7011886/data" -u "fpl" -P "1234567890"
 
 #hostMQTT="192.168.2.15"
+#hostMQTT="192.168.1.135"
+#hostMQTT="localhost"
+hostMQTT="10.81.242.204"
 
-hostMQTT="192.168.1.135"
-DEBUG = False
+DEBUG = True
 
 overzetverhouding_trafo = 10000 / 400
 
@@ -78,7 +80,7 @@ def on_message(mqttc, obj, msg):
     if (DEBUG): print(values)
     if (DEBUG): print(len(values))
     
-    if (len(values) == 3):
+    if (len(values) == 4):
         for index, value in enumerate(values):
             if (DEBUG): print( value )
             if (index == 1):
@@ -97,7 +99,7 @@ mqttc.on_disconnect = on_disconnect
 mqttc.on_publish = on_publish
 mqttc.on_subscribe = on_subscribe
 # Uncomment to enable debug messages
-#mqttc.on_log = on_log
+mqttc.on_log = on_log
 
 is_mqttConnect = connect_to_MQTT()
 
@@ -150,7 +152,7 @@ if __name__ == '__main__':
 
     IMAGE_PATH = 'MSR1.png'
     WIDTH, HEIGTH = 800,480
-    FULLSCREEN = False
+    FULLSCREEN = True
     
     root = tk.Tk()
     root.geometry('{}x{}'.format(WIDTH, HEIGTH))
@@ -177,19 +179,19 @@ if __name__ == '__main__':
 
 
     # Put some tkinter widgets in the BkgrFrame.
-    scale1 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 150)
-    scale2 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 170)
-    scale3 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 190)
-    scale4 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 340)
-    scale5 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 360)
-    scale6 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=8, length=170, showvalue=0 ), OFFSET_SLIDER , 380)
+    scale1 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=16, length=170, showvalue=0 ), OFFSET_SLIDER , 150)
+    scale2 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=16, length=170, showvalue=0 ), OFFSET_SLIDER , 170)
+    scale3 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=16, length=170, showvalue=0 ), OFFSET_SLIDER , 190)
+    scale4 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=16, length=170, showvalue=0 ), OFFSET_SLIDER , 340)
+    scale5 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=16, length=170, showvalue=0 ), OFFSET_SLIDER , 360)
+    scale6 = bkrgframe.add(tk.Scale(root, from_=-20, to=125, orient=HORIZONTAL, command=updateVal, highlightbackground='black', fg='white',bg='black', width=16, length=170, showvalue=0 ), OFFSET_SLIDER , 380)
     
-    scale1.set(65)
-    scale2.set(65)
-    scale3.set(65)
-    scale4.set(65)
-    scale5.set(65)
-    scale6.set(65)
+    scale1.set(29)
+    scale2.set(35)
+    scale3.set(16)
+    scale4.set(45)
+    scale5.set(32)
+    scale6.set(53)
 
    
     label1  = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="L1"), OFFSET_SLIDER - 25 , 147)
@@ -214,7 +216,7 @@ if __name__ == '__main__':
     label18 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER + 210 , 377)
 
     label19 = bkrgframe.add(tk.Label(root, fg='white',bg='black', text="A"), OFFSET_SLIDER - 220 , 320)
-    I_10kV  = bkrgframe.add(tk.Label(root, textvariable=var7, fg='white',bg='black', text="0"), OFFSET_SLIDER - 240 , 320)
+    I_10kV  = bkrgframe.add(tk.Label(root, textvariable=var7, fg='white',bg='black', text="0"), OFFSET_SLIDER - 250 , 320)
  
     label20 = bkrgframe.add(tk.Label(root, textvariable=var8, fg='white',bg='black', text="400", font=("Helvetica", 16)), OFFSET_SLIDER - 240 , 190)
     label21 = bkrgframe.add(tk.Label(root, textvariable=var9, fg='white',bg='black', text="50", font=("Helvetica", 16)), OFFSET_SLIDER - 240 , 220)

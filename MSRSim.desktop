@@ -3,4 +3,4 @@ Name=MSRSimulator
 Terminal=false
 Type=Application
 Exec=python3 /home/pi/MSRSim/MSR_V01.py
-Icon=/home/pi/MSRSim/MSR_icoon.png
+Icon=/home/pi/MSRSim/msr_icoon.ico
